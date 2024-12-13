@@ -1,4 +1,5 @@
 import type { TextItem, FeatureSet } from "lib/parse-resume-from-pdf/types";
+import { FRENCH_MONTHS } from "../../constants/french";
 
 const isTextItemBold = (fontName: string) =>
   fontName.toLowerCase().includes("bold");
@@ -26,10 +27,23 @@ const SEASONS = ["Summer", "Fall", "Spring", "Winter"];
 const hasSeason = (item: TextItem) =>
   SEASONS.some((season) => item.text.includes(season));
 const hasPresent = (item: TextItem) => item.text.includes("Present");
+
+const matchFrenchDate = (item: TextItem) => {
+  // Match patterns like "janvier 2020" or "jan. 2020 - présent"
+  const frenchMonthPattern = FRENCH_MONTHS.join('|');
+  const pattern = new RegExp(`(${frenchMonthPattern}|[a-zéû]+\\.?)\\s+\\d{4}`);
+  return item.text.toLowerCase().match(pattern);
+};
+
+const matchDate = (item: TextItem) => {
+  // Match patterns like "January 2020" or "Jan 2020" or "01/2020"
+  const pattern = /(?:\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\b|\d{1,2}\/)\s*\d{4}/i;
+  return item.text.match(pattern);
+};
+
 export const DATE_FEATURE_SETS: FeatureSet[] = [
-  [hasYear, 1],
-  [hasMonth, 1],
-  [hasSeason, 1],
-  [hasPresent, 1],
-  [hasComma, -1],
+  [matchDate, 4, true],
+  [matchFrenchDate, 4, true],
+  [hasNumber, 2],
+  [hasYear, 2],
 ];

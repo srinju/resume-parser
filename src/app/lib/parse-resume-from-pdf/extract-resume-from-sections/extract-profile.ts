@@ -13,6 +13,9 @@ import {
 } from "lib/parse-resume-from-pdf/extract-resume-from-sections/lib/common-features";
 import { getTextWithHighestFeatureScore } from "lib/parse-resume-from-pdf/extract-resume-from-sections/lib/feature-scoring-system";
 
+// Add this new function with the other helper functions
+export const hasParenthesis = (item: TextItem) => item.text.includes("(") || item.text.includes(")");
+
 // Name
 export const matchOnlyLetterSpaceOrPeriod = (item: TextItem) =>
   item.text.match(/^[a-zA-Z\s\.]+$/);
@@ -25,13 +28,14 @@ const hasAt = (item: TextItem) => item.text.includes("@");
 // Phone
 // Simple phone regex that matches (xxx)-xxx-xxxx where () and - are optional, - can also be space
 export const matchPhone = (item: TextItem) =>
-  item.text.match(/\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{4}/);
-const hasParenthesis = (item: TextItem) => /\([0-9]+\)/.test(item.text);
+  item.text.match(/\(?\d{2}[\s.-]?\d{2}[\s.-]?\d{2}[\s.-]?\d{2}[\s.-]?\d{2}/) || // French format
+  item.text.match(/\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{4}/); // Original format
 
 // Location
 // Simple location regex that matches "<City>, <ST>"
 export const matchCityAndState = (item: TextItem) =>
-  item.text.match(/[A-Z][a-zA-Z\s]+, [A-Z]{2}/);
+  item.text.match(/[A-Z][a-zA-Z\s-]+,\s+France/) || // French format
+  item.text.match(/[A-Z][a-zA-Z\s]+,\s+[A-Z]{2}/); // Original format
 
 // Url
 // Simple url regex that matches "xxx.xxx/xxx" (xxx = anything not space)
