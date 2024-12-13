@@ -3,6 +3,7 @@ import type { Resume } from "lib/redux/types";
 import { initialEducation, initialWorkExperience } from "lib/redux/resumeSlice";
 import { deepClone } from "lib/deep-clone";
 import { cx } from "lib/cx";
+import { DownloadResumeResults } from "components/DownloadResumeResults";
 
 const TableRowHeader = ({ children }: { children: React.ReactNode }) => (
   <tr className="divide-x bg-gray-50">
@@ -57,6 +58,7 @@ export const ResumeTable = ({ resume }: { resume: Resume }) => {
     skills.unshift(featuredSkills);
   }
   return (
+    <>
     <table className="mt-2 w-full border text-sm text-gray-900">
       <tbody className="divide-y text-left align-top">
         <TableRowHeader>Profile</TableRowHeader>
@@ -123,5 +125,7 @@ export const ResumeTable = ({ resume }: { resume: Resume }) => {
         <TableRow label="Descriptions" value={skills} />
       </tbody>
     </table>
+    <DownloadResumeResults resume={resume} />
+    </>
   );
 };
