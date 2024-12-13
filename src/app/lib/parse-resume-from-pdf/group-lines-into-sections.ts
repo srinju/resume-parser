@@ -62,6 +62,14 @@ const SECTION_TITLE_KEYWORDS = [
   ...SECTION_TITLE_SECONDARY_KEYWORDS,
 ];
 
+const FRENCH_SECTION_KEYWORDS = {
+  experience: ["expérience"],
+  éducation: ["éducation"],
+  projet: ["projet"],
+  compétence: ["compétence"],
+  // Add more French keywords as needed
+};
+
 const isSectionTitle = (line: Line, lineNumber: number) => {
   const isFirstTwoLines = lineNumber < 2;
   const hasMoreThanOneItemInLine = line.length > 1;
@@ -71,28 +79,17 @@ const isSectionTitle = (line: Line, lineNumber: number) => {
   }
 
   const textItem = line[0];
+  const text = textItem.text.trim().toLowerCase();
 
-  // The main heuristic to determine a section title is to check if the text is double emphasized
-  // to be both bold and all uppercase, which is generally true for a well formatted resume
+  // Check for French section titles
+  const isFrenchSection = Object.values(FRENCH_SECTION_KEYWORDS).some(keywords =>
+    keywords.some(keyword => text.includes(keyword.toLowerCase()))
+  );
+
+  if (isFrenchSection) return true;
+
+  // Existing checks
   if (isBold(textItem) && hasLetterAndIsAllUpperCase(textItem)) {
-    return true;
-  }
-
-  // The following is a fallback heuristic to detect section title if it includes a keyword match
-  // (This heuristics is not well tested and may not work well)
-  const text = textItem.text.trim();
-  const textHasAtMost2Words =
-    text.split(" ").filter((s) => s !== "&").length <= 2;
-  const startsWithCapitalLetter = /[A-Z]/.test(text.slice(0, 1));
-
-  if (
-    textHasAtMost2Words &&
-    hasOnlyLettersSpacesAmpersands(textItem) &&
-    startsWithCapitalLetter &&
-    SECTION_TITLE_KEYWORDS.some((keyword) =>
-      text.toLowerCase().includes(keyword)
-    )
-  ) {
     return true;
   }
 

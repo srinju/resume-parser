@@ -18,7 +18,7 @@ export const hasParenthesis = (item: TextItem) => item.text.includes("(") || ite
 
 // Name
 export const matchOnlyLetterSpaceOrPeriod = (item: TextItem) =>
-  item.text.match(/^[a-zA-Z\s\.]+$/);
+  item.text.match(/^[A-Za-zÀ-ÿ\s\.-]+$/);
 
 // Email
 // Simple email regex: xxx@xxx.xxx (xxx = anything not space)
@@ -34,8 +34,10 @@ export const matchPhone = (item: TextItem) =>
 // Location
 // Simple location regex that matches "<City>, <ST>"
 export const matchCityAndState = (item: TextItem) =>
-  item.text.match(/[A-Z][a-zA-Z\s-]+,\s+France/) || // French format
-  item.text.match(/[A-Z][a-zA-Z\s]+,\s+[A-Z]{2}/); // Original format
+  item.text.match(/\d{1,4}\s+(?:rue|avenue|boulevard|place)\s+[A-Za-zÀ-ÿ\s,'-]+/) || // French street address
+  item.text.match(/[A-Za-zÀ-ÿ\s-]+,\s*\d{5}\s*[A-Za-zÀ-ÿ\s-]+/) || // French postal format
+  item.text.match(/[A-Z][a-zA-ZÀ-ÿ\s-]+,\s+France/) || // City, France format
+  item.text.match(/[A-Z][a-zA-Z\s]+,\s+[A-Z]{2}/); // Original US format
 
 // Url
 // Simple url regex that matches "xxx.xxx/xxx" (xxx = anything not space)
@@ -68,15 +70,15 @@ const has4OrMoreWords = (item: TextItem) => item.text.split(" ").length >= 4;
  */
 const NAME_FEATURE_SETS: FeatureSet[] = [
   [matchOnlyLetterSpaceOrPeriod, 3, true],
-  [isBold, 2],
+  [isBold, 3],
   [hasLetterAndIsAllUpperCase, 2],
   // Match against other unique attributes
   [hasAt, -4], // Email
   [hasNumber, -4], // Phone
   [hasParenthesis, -4], // Phone
-  [hasComma, -4], // Location
+  [hasComma, -2],
   [hasSlash, -4], // Url
-  [has4OrMoreWords, -2], // Summary
+  [has4OrMoreWords, -3], // Summary
 ];
 
 // Email -> match email regex xxx@xxx.xxx

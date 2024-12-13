@@ -33,8 +33,10 @@ const hasJobTitle = (item: TextItem) => {
 const hasMoreThan5Words = (item: TextItem) => item.text.split(/\s/).length > 5;
 const JOB_TITLE_FEATURE_SET: FeatureSet[] = [
   [hasJobTitle, 4],
+  [isBold, 2],
   [hasNumber, -4],
   [hasMoreThan5Words, -2],
+  [(item: TextItem) => /^(Technicien|Ingénieur|Chef|Responsable|Chargé)/i.test(item.text), 3],
 ];
 
 export const extractWorkExperience = (sections: ResumeSectionToLines) => {
@@ -83,4 +85,16 @@ export const extractWorkExperience = (sections: ResumeSectionToLines) => {
     });
   }
   return { workExperiences, workExperiencesScores };
+};
+
+const extractDateAndCompany = (textItem: TextItem) => {
+  const datePattern = /(?:\d{2}[-/.]\d{2}[-/.]\d{4})|(?:\d{1,2}[-/.]?\d{4})/;
+  const dateMatch = textItem.text.match(datePattern);
+  
+  if (dateMatch) {
+    const [date] = dateMatch;
+    const company = textItem.text.replace(date, '').trim();
+    return { date, company };
+  }
+  return null;
 };
